@@ -16,34 +16,48 @@ import cl.perfulandia.service.CasoAtencionService;
 
 
 
+@RestController
+@RequestMapping("/atencion")
 public class CasoAtencionController {
+
     @Autowired
-    private CasoAtencionService casoService;
+    private CasoAtencionService atencionService;
 
     @GetMapping
     public ResponseEntity<List<CasoAtencionDTO>> listar() {
-        return ResponseEntity.ok(casoService.findAll());
+        return new ResponseEntity<>(atencionService.listar(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CasoAtencionDTO> obtener(@PathVariable Long id) {
-        CasoAtencionDTO dto = casoService.findById(id);
-        return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+        CasoAtencionDTO dto = atencionService.obtenerPorId(id);
+        return (dto != null) ? new ResponseEntity<>(dto, HttpStatus.OK)
+                             : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
     public ResponseEntity<CasoAtencionDTO> crear(@RequestBody CasoAtencionDTO dto) {
-        return ResponseEntity.status(201).body(casoService.save(dto));
+        CasoAtencionDTO creado = atencionService.crear(dto);
+        return new ResponseEntity<>(creado, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CasoAtencionDTO> actualizar(@PathVariable Long id, @RequestBody CasoAtencionDTO dto) {
-        return ResponseEntity.ok(casoService.update(id, dto));
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody CasoAtencionDTO dto) {
+        CasoAtencionDTO existente = atencionService.obtenerPorId(id);
+        if (existente == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        CasoAtencionDTO actualizado = atencionService.actualizar(id, dto);
+        return new ResponseEntity<>(actualizado, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        casoService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        CasoAtencionDTO existente = atencionService.obtenerPorId(id);
+        if (existente == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        atencionService.eliminar(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
