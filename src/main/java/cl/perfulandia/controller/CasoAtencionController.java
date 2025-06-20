@@ -21,43 +21,32 @@ import cl.perfulandia.service.CasoAtencionService;
 public class CasoAtencionController {
 
     @Autowired
-    private CasoAtencionService atencionService;
+    private CasoAtencionService casoService;
 
     @GetMapping
     public ResponseEntity<List<CasoAtencionDTO>> listar() {
-        return new ResponseEntity<>(atencionService.listar(), HttpStatus.OK);
+        return ResponseEntity.ok(casoService.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CasoAtencionDTO> obtener(@PathVariable Long id) {
-        CasoAtencionDTO dto = atencionService.obtenerPorId(id);
-        return (dto != null) ? new ResponseEntity<>(dto, HttpStatus.OK)
-                             : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        CasoAtencionDTO dto = casoService.findById(id);
+        return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<CasoAtencionDTO> crear(@RequestBody CasoAtencionDTO dto) {
-        CasoAtencionDTO creado = atencionService.crear(dto);
-        return new ResponseEntity<>(creado, HttpStatus.CREATED);
+        return ResponseEntity.status(201).body(casoService.save(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody CasoAtencionDTO dto) {
-        CasoAtencionDTO existente = atencionService.obtenerPorId(id);
-        if (existente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        CasoAtencionDTO actualizado = atencionService.actualizar(id, dto);
-        return new ResponseEntity<>(actualizado, HttpStatus.OK);
+    public ResponseEntity<CasoAtencionDTO> actualizar(@PathVariable Long id, @RequestBody CasoAtencionDTO dto) {
+        return ResponseEntity.ok(casoService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        CasoAtencionDTO existente = atencionService.obtenerPorId(id);
-        if (existente == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        atencionService.eliminar(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        casoService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
